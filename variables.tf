@@ -88,6 +88,7 @@ variable "admin_user" {
 variable "admin_user_password" { 
   description = "Optional password for admin user"
   type        = string
+  sensitive   = true
   default     = ""
 }
 
@@ -98,7 +99,8 @@ variable "ssh_external_public_key" {
 
 variable "ssh_internal_private_key" {
   description = "Value of the private part of the ssh keypair that the bastion will use to ssh on instances"
-  type = string
+  type        = string
+  sensitive   = true
 }
 
 variable "ssh_internal_public_key" {
