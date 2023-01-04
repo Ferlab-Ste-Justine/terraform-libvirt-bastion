@@ -70,13 +70,12 @@ module "bastion_alpha" {
   vcpus = 1
   memory = 4096
   volume_id = libvirt_volume.bastion.id
-  network_id = var.bastion_network_id
-  macvtap_interface = var.bastion_macvtap_interface
-  macvtap_subnet_prefix_length = var.bastion_macvtap_subnet_prefix_length
-  macvtap_gateway_ip = var.bastion_macvtap_gateway_ip
-  macvtap_dns_servers = var.bastion_dns_servers
-  ip = var.bastion_ip
-  mac = var.bastion_mac
+  libvirt_network = {
+    network_name = "ferlab"
+    network_id = ""
+    ip = netaddr_address_ipv4.k8_bastion.0.address
+    mac = netaddr_address_mac.k8_bastion.0.address
+  }
   cloud_init_volume_pool = "cloud-init-vols"
   ssh_internal_public_key = chomp(data.local_file.bastion_ssh_internal_public_key.content)
   ssh_internal_private_key = chomp(data.local_file.bastion_ssh_internal_private_key.content)
