@@ -20,52 +20,33 @@ variable "volume_id" {
   type        = string
 }
 
-variable "network_id" {
-  description = "Id of the libvirt network to connect the vm to if you plan on connecting the vm to a libvirt network"
-  type        = string
-  default     = ""
+variable "libvirt_network" {
+  description = "Parameters of the libvirt network connection if a libvirt network is used. Has the following parameters: network_id, network_name, ip, mac"
+  type = object({
+    network_name = string
+    network_id = string
+    ip = string
+    mac = string
+  })
+  default = {
+    network_name = ""
+    network_id = ""
+    ip = ""
+    mac = ""
+  }
 }
 
-variable "macvtap_interface" {
-  description = "Interface that you plan to connect your vm to via a lower macvtap interface. Note that either this or network_id should be set, but not both."
-  type        = string
-  default     = ""
-}
-
-variable "macvtap_vm_interface_name_match" {
-  description = "Expected pattern of the network interface name in the vm."
-  type        = string
-  //https://github.com/systemd/systemd/blob/main/src/udev/udev-builtin-net_id.c#L932
-  default     = "en*"
-}
-
-variable "macvtap_subnet_prefix_length" {
-  description = "Length of the subnet prefix (ie, the yy in xxx.xxx.xxx.xxx/yy). Used for macvtap only."
-  type        = string
-  default     = ""
-}
-
-variable "macvtap_gateway_ip" {
-  description = "Ip of the physical network's gateway. Used for macvtap only."
-  type        = string
-  default     = ""
-}
-
-variable "macvtap_dns_servers" {
-  description = "Ip of dns servers to setup on the vm, useful mostly during the initial cloud-init bootstraping to resolve domain of installables. Used for macvtap only."
-  type        = list(string)
-  default     = []
-}
-
-variable "ip" {
-  description = "Ip address of the vm"
-  type        = string
-}
-
-variable "mac" {
-  description = "Mac address of the vm"
-  type        = string
-  default     = ""
+variable "macvtap_interfaces" {
+  description = "List of macvtap interfaces. Mutually exclusive with the network_id, ip and mac fields. Each entry has the following keys: interface, prefix_length, ip, mac, gateway and dns_servers"
+  type        = list(object({
+    interface = string,
+    prefix_length = number,
+    ip = string,
+    mac = string,
+    gateway = string,
+    dns_servers = list(string),
+  }))
+  default = []
 }
 
 variable "cloud_init_volume_pool" {
