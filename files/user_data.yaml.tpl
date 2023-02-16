@@ -26,9 +26,6 @@ write_files:
     owner: root:root
     permissions: "0600"
     content: ${internal_public_key}
-packages:
-  - python3-pip
-  - jq
 runcmd:
   #Copy ssh key pair
   - mv /opt/id_rsa* /home/${admin_user}/.ssh/
