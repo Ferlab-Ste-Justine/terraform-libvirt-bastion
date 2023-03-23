@@ -4,7 +4,7 @@ This package is a terraform module to provision a bastion on kvm.
 
 The package takes an public external ssh key to login to the bastion and an internal ssh key pair that will be setup on the bastion so that a user can login to other machines from the bastion.
 
-The bastion provision some packages as part of its cloud-init logic: ansible, netaddr, jq
+The bastion provision docker as part of its cloud-init logic.
 
 # Usage
 
