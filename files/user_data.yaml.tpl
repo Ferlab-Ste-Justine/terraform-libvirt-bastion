@@ -1,20 +1,27 @@
 #cloud-config
+merge_how:
+ - name: list
+   settings: [append, no_replace]
+ - name: dict
+   settings: [no_replace, recurse_list]
+
 %{ if admin_user_password != "" ~}
+ssh_pwauth: false
 chpasswd:
-  list: |
-     ${admin_user}:${admin_user_password}
   expire: False
+  users:
+    - name: ${ssh_admin_user}
+      password: "${admin_user_password}"
+      type: text
 %{ endif ~}
 preserve_hostname: false
-hostname: ${node_name}
+hostname: ${hostname}
 users:
-  - default    
-  - name: node-exporter
-    system: True
-    lock_passwd: True
-  - name: ${admin_user}
+  - default
+  - name: ${ssh_admin_user}
     ssh_authorized_keys:
-      - "${external_public_key}"
+      - "${ssh_admin_public_key}"
+
 write_files:
   #key
   - path: /opt/id_rsa
@@ -26,14 +33,17 @@ write_files:
     owner: root:root
     permissions: "0600"
     content: ${internal_public_key}
+
 runcmd:
   #Copy ssh key pair
-  - mv /opt/id_rsa* /home/${admin_user}/.ssh/
-  - chown ${admin_user}:${admin_user} /home/${admin_user}/.ssh/id_rsa
-  - chown ${admin_user}:${admin_user} /home/${admin_user}/.ssh/id_rsa.pub
+  - mv /opt/id_rsa* /home/${ssh_admin_user}/.ssh/
+  - chown ${ssh_admin_user}:${ssh_admin_user} /home/${ssh_admin_user}/.ssh/id_rsa
+  - chown ${ssh_admin_user}:${ssh_admin_user} /home/${ssh_admin_user}/.ssh/id_rsa.pub
   #Install docker
+%{ if install_dependencies ~}
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
   - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - apt-get update
   - apt-get install -y docker-ce docker-ce-cli containerd.io
   - systemctl enable docker
+%{ endif ~}

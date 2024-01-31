@@ -58,8 +58,8 @@ variable "cloud_init_volume_name" {
   default = ""
 }
 
-variable "admin_user" { 
-  description = "Pre-existing admin user of the image"
+variable "ssh_admin_user" { 
+  description = "Pre-existing ssh admin user of the image"
   type        = string
   default     = "ubuntu"
 }
@@ -71,7 +71,7 @@ variable "admin_user_password" {
   default     = ""
 }
 
-variable "ssh_external_public_key" {
+variable "ssh_admin_public_key" {
   description = "Public ssh part of the ssh key the admin will be able to login as"
   type        = string
 }
@@ -85,4 +85,41 @@ variable "ssh_internal_private_key" {
 variable "ssh_internal_public_key" {
   description = "Value of the public part of the ssh keypair that the bastion will use to ssh on instances"
   type = string
+}
+
+variable "chrony" {
+  description = "Chrony configuration for ntp. If enabled, chrony is installed and configured, else the default image ntp settings are kept"
+  type        = object({
+    enabled = bool,
+    //https://chrony.tuxfamily.org/doc/4.2/chrony.conf.html#server
+    servers = list(object({
+      url = string,
+      options = list(string)
+    })),
+    //https://chrony.tuxfamily.org/doc/4.2/chrony.conf.html#pool
+    pools = list(object({
+      url = string,
+      options = list(string)
+    })),
+    //https://chrony.tuxfamily.org/doc/4.2/chrony.conf.html#makestep
+    makestep = object({
+      threshold = number,
+      limit = number
+    })
+  })
+  default = {
+    enabled = false
+    servers = []
+    pools = []
+    makestep = {
+      threshold = 0,
+      limit = 0
+    }
+  }
+}
+
+variable "install_dependencies" {
+  description = "Whether to install all dependencies in cloud-init"
+  type = bool
+  default = true
 }
